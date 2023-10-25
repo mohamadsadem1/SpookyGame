@@ -12,7 +12,7 @@
 class ASJG_Player_Character;
 
 UENUM(BlueprintType)
-enum ECollectableState :uint8
+enum class ECollectableState :uint8
 {
 	EWS_Pickup		 UMETA(Display_Name = "Pickup"),
 	EWS_Equipped	 UMETA(Display_Name = "Equipped"),
@@ -21,9 +21,23 @@ enum ECollectableState :uint8
 };
 
 UENUM()
-enum ECollectableType:uint8
+enum class ECollectableType :uint8
 {
 	ECT_Weapon,
+	ECT_Item
+};
+
+UENUM()
+enum class EWeaponType :uint8
+{
+	ECT_axe,
+	ECT_hatchet
+};
+
+UENUM()
+enum class EBodyPartType :uint8
+{
+	ECT_Head,
 	ECT_Item
 };
 
@@ -47,10 +61,12 @@ protected:
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, category = "Collect ")
-		TEnumAsByte<ECollectableState> CollectableState;
+		ECollectableState CollectableState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Collect ")
-		TEnumAsByte<ECollectableType> CollectableType;
+		ECollectableType CollectableType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Collect ")
+		EWeaponType WeaponType;
 
 	FORCEINLINE void SetWeaponState(ECollectableState state) { CollectableState = state; }
 

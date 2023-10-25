@@ -99,6 +99,12 @@ protected:
 public:
 
 	//===========================================================
+	//Character Status
+	//===========================================================
+	bool bIsAttacking;
+
+
+	//===========================================================
 	//INTERACTION SYSTEM RELATED
 	//===========================================================
 	float InteractionCheckFrequency;
@@ -114,11 +120,16 @@ public:
 	//ANIMATIONS RELATED
 	//===========================================================
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Animation")
-	class UAnimMontage* PrimaryAttackMontage;
+	class UAnimMontage* PrimaryAttackWithHatchetMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Animation")
-	class UAnimMontage* DroppingBodyPartMon;
+		class UAnimMontage* PrimaryAttackWithAxeMontage;;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Animation")
+	float AnimationSpeed;
+
+	void PrimaryAttack();
+	
 
 
 	//===========================================================
@@ -147,9 +158,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "RageMode")
 	bool bIsHoldingLeftWeapon;
 
-	void Pickup(ASJG_Player_Character*PlayerCharacter);
-	void UnequipRightHand(ASJG_Player_Character*PlayerCharacter);
-	void UnequipLeftHand(ASJG_Player_Character*PlayerCharacter);
+	void Pickup(ASJG_Player_Character*Character);
+	void UnequipRightHand();
+	void UnequipLeftHand();
 
 
 
@@ -158,7 +169,7 @@ public:
 	//RAGE MODE RELATED
 	//===========================================================
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RageMode")
-		TEnumAsByte<ERageModeState> RageModeState;
+		ERageModeState RageModeState;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RageMode")
 	float RagePercent;
@@ -173,8 +184,7 @@ public:
 	FTimerHandle IncreasingTimerHandle;
 	FTimerHandle RecoverTimerHandle;
 
-	void EnteringRageMode(ASJG_Player_Character* PlayerCharacter);
-	void ExitRageMode();
+	void EnteringRageMode();
 	void ExhaustedMode();
 	void RecoverMode();
 

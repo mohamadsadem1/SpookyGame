@@ -52,6 +52,7 @@ void ASJG_PlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(UnequipLeftHand, ETriggerEvent::Triggered, this, &ASJG_PlayerController::CallUnequipLeftHand);
 
 	EnhancedInputComponent->BindAction(EnterRageMode, ETriggerEvent::Triggered, this, &ASJG_PlayerController::CallEnteringTheRageMode);
+	EnhancedInputComponent->BindAction(PrimaryAttack, ETriggerEvent::Triggered, this, &ASJG_PlayerController::CallPrimaryAttack);
 
 }
 
@@ -100,17 +101,23 @@ void ASJG_PlayerController::CallPickUp(const FInputActionValue& Value)
 void ASJG_PlayerController::CallUnequipRightHand(const FInputActionValue& Value)
 {
 	ASJG_Player_Character* PlayerCharacter = Cast<ASJG_Player_Character>(GetPawn());
-	PlayerCharacter->UnequipRightHand(PlayerCharacter);
+	PlayerCharacter->UnequipRightHand();
 }
 
 void ASJG_PlayerController::CallUnequipLeftHand(const FInputActionValue& Value)
 {
 	ASJG_Player_Character* PlayerCharacter = Cast<ASJG_Player_Character>(GetPawn());
-	PlayerCharacter->UnequipLeftHand(PlayerCharacter);
+	PlayerCharacter->UnequipLeftHand();
 }
 
 void ASJG_PlayerController::CallEnteringTheRageMode(const FInputActionValue& Value)
 {
 	ASJG_Player_Character* PlayerCharacter = Cast<ASJG_Player_Character>(GetPawn());
-	PlayerCharacter->EnteringRageMode(PlayerCharacter);
+	PlayerCharacter->EnteringRageMode();
+}
+
+void ASJG_PlayerController::CallPrimaryAttack(const FInputActionValue& Value)
+{
+	ASJG_Player_Character* PlayerCharacter = Cast<ASJG_Player_Character>(GetPawn());
+	PlayerCharacter->PrimaryAttack();
 }

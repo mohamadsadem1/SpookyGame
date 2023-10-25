@@ -7,6 +7,8 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimMontage.h"
+#include "Animation/AnimInstance.h"
+
 
 
 
@@ -81,7 +83,6 @@ void ASJG_Player_Character::PrimaryInteract()
 	ObjectQuerryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 
 	AActor* MyOwner = GetOwner();
-	FVector Start;
 	FVector EyeLocation;
 	FRotator EyeRotation;
 
@@ -122,20 +123,44 @@ void ASJG_Player_Character::PrimaryInteract()
 }
 
 
+void ASJG_Player_Character::PrimaryAttack()
+{
+	if(!bIsAttacking)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
-void ASJG_Player_Character::Pickup(ASJG_Player_Character* PlayerCharacter)
+		if (AnimInstance && PrimaryAttackWithAxeMontage && PrimaryAttackWithHatchetMontage)
+		{
+			if (GetrightCollectableHolded()->WeaponType == EWeaponType::ECT_axe)
+			{
+				AnimInstance->Montage_Play(PrimaryAttackWithAxeMontage, AnimationSpeed);
+
+				AnimInstance->Montage_JumpToSection(FName("Attack"), PrimaryAttackWithAxeMontage);
+			}
+
+			if (GetrightCollectableHolded()->WeaponType == EWeaponType::ECT_hatchet)
+			{
+				AnimInstance->Montage_Play(PrimaryAttackWithHatchetMontage, AnimationSpeed);
+
+				AnimInstance->Montage_JumpToSection(FName("Attack"), PrimaryAttackWithHatchetMontage);
+			}
+		}
+	}
+}
+
+void ASJG_Player_Character::Pickup(ASJG_Player_Character* Character)
 {
 	if (IsValid(GetCurrentInteractableCollectable()))
 	{
 		TObjectPtr<ACollectable> Collectable = CurrentInteractablecollectable;
 
-		if (Collectable->GetCollectableState() == EWS_Pickup)
+		if (Collectable->GetCollectableState() == ECollectableState::EWS_Pickup)
 		{
 			if (Collectable->CollectableType == ECollectableType::ECT_Weapon)
 			{
 				if (bIsHoldingRightWeapon == false)
 				{
-					Collectable->EquipRightHand(PlayerCharacter);
+					Collectable->EquipRightHand(Character);
 					UE_LOG(LogTemp, Warning, TEXT("Righthand"));
 
 					SetRightEquippedCollectable(Collectable);
@@ -143,12 +168,12 @@ void ASJG_Player_Character::Pickup(ASJG_Player_Character* PlayerCharacter)
 				if (bIsHoldingRightWeapon == true)
 				{
 
-					GetrightCollectableHolded()->UnEquipRightHand(PlayerCharacter);
+					GetrightCollectableHolded()->UnEquipRightHand(Character);
 					if (bIsHoldingRightWeapon == false)
 					{
 						UE_LOG(LogTemp, Warning, TEXT("unequ"))
 
-						Collectable->EquipRightHand(PlayerCharacter);
+						Collectable->EquipRightHand(Character);
 					}
 				}
 			}
@@ -156,26 +181,26 @@ void ASJG_Player_Character::Pickup(ASJG_Player_Character* PlayerCharacter)
 			{
 				if (bIsHoldingLeftWeapon == false)
 				{
-					Collectable->EquipLeftHand(PlayerCharacter);
+					Collectable->EquipLeftHand(Character);
 					UE_LOG(LogTemp, Warning, TEXT("LeftHand"));
 
 					SetLeftEquippedCollectable(Collectable);
 				}
 
-				Collectable->SetWeaponState(EWS_Equipped);
+				Collectable->SetWeaponState(ECollectableState::EWS_Equipped);
 			}
 		}
 	}
 }
 
-void ASJG_Player_Character::UnequipRightHand(ASJG_Player_Character* PlayerCharacter)
+void ASJG_Player_Character::UnequipRightHand()
 {
 	if(bIsHoldingRightWeapon)
 	{
 		GetrightCollectableHolded()->UnEquipRightHand(this);
 	}
 }
-void ASJG_Player_Character::UnequipLeftHand(ASJG_Player_Character* PlayerCharacter)
+void ASJG_Player_Character::UnequipLeftHand()
 {
 	if(bIsHoldingLeftWeapon)
 	{
@@ -188,7 +213,7 @@ void ASJG_Player_Character::UnequipLeftHand(ASJG_Player_Character* PlayerCharact
 //===========================================================
 //RAGE MODE RELATED
 //===========================================================
-void ASJG_Player_Character::EnteringRageMode(ASJG_Player_Character* PlayerCharacter)
+void ASJG_Player_Character::EnteringRageMode()
 {
 	if (bAbleToEnterRageMode == true && RageModeState==ERageModeState::ERMS_NormalMode)
 	{
@@ -207,6 +232,8 @@ void ASJG_Player_Character::EnteringRageMode(ASJG_Player_Character* PlayerCharac
 		{
 
 			MaxCharacterSpeed= CharacterMovementComponent->MaxWalkSpeed *= 2.f;
+
+			AnimationSpeed *= 2;
 		}
 			GetWorldTimerManager().SetTimer(DecreasingTimerHandle, this, &ASJG_Player_Character::DecreasingTheRagePercent, 0.2f, true);
 		
@@ -215,15 +242,6 @@ void ASJG_Player_Character::EnteringRageMode(ASJG_Player_Character* PlayerCharac
 
 	
 }
-
-
-void ASJG_Player_Character::ExitRageMode()
-{
-	GetWorldTimerManager().SetTimer(RecoverTimerHandle, this, &ASJG_Player_Character::RecoverMode, 10.f, false);
-}
-
-
-
 
 void ASJG_Player_Character::IncreasingTheRagePercent()
 {
@@ -279,6 +297,7 @@ void ASJG_Player_Character::ExhaustedMode()
 	if (CharacterMovementComponent)
 	{
 		MaxCharacterSpeed=CharacterMovementComponent->MaxWalkSpeed /= 4.f;
+		AnimationSpeed /= 4;
 	}
 	GetWorldTimerManager().SetTimer(RecoverTimerHandle, this, &ASJG_Player_Character::RecoverMode, 10.f, false);
 }
@@ -298,6 +317,7 @@ void ASJG_Player_Character::RecoverMode()
 	if (CharacterMovementComponent)
 	{
 		MaxCharacterSpeed=CharacterMovementComponent->MaxWalkSpeed *= 2.f;
+		AnimationSpeed *= 2;
 	}
 
 }

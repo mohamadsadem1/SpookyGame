@@ -54,6 +54,11 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UInputAction> LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UInputAction> PrimaryAttack;
+
+	
+
 	void Look(const FInputActionValue& Value);
 
 	void CallPickUp(const FInputActionValue& Value);
@@ -61,6 +66,7 @@ private:
 	void CallUnequipLeftHand(const FInputActionValue& Value);
 
 	void CallEnteringTheRageMode(const FInputActionValue& Value);
+	void CallPrimaryAttack(const FInputActionValue& Value);
 
 
 };
